@@ -9,7 +9,7 @@ namespace ConsoleApp1
 {
     public class SignatureGeneratorV2
     {
-        public unsafe static string GenerateSignature(SignatureModel model, string tpToken)
+        public static string GenerateSignature(SignatureModel model, string tpToken)
         {
             var queryString = GetQueryString(model, tpToken);
 
@@ -26,7 +26,8 @@ namespace ConsoleApp1
             // Convert the byte array to hexadecimal string
             var signature = string.Create(32, bValue, static (chars, state) =>
             {
-                var bytes = new ReadOnlySpan<byte>(Unsafe.AsPointer(ref state), sizeof(decimal));
+                var tempSpan = MemoryMarshal.CreateReadOnlySpan(ref state, 1);
+                var bytes = MemoryMarshal.Cast<decimal,byte>(tempSpan);
                 ReadOnlySpan<char> format = "x2";
                 for (int i = 0; i < bytes.Length; i++)
                 {
